@@ -4,6 +4,7 @@ import Sidebar from "@/components/sidebar";
 import CodePreview from "@/components/code-preview";
 import AISuggestions from "@/components/ai-suggestions";
 import DocumentationModal from "@/components/documentation-modal";
+import { LoadingScreen } from "@/components/loading-screen";
 
 export default function Home() {
   const [selectedRepository, setSelectedRepository] = useState<any>(null);
@@ -11,6 +12,8 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<"code" | "docs" | "export">("code");
   const [showDocModal, setShowDocModal] = useState(false);
   const [generatedDoc, setGeneratedDoc] = useState<any>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Analyzing repository...");
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
@@ -25,6 +28,11 @@ export default function Home() {
             setGeneratedDoc(doc);
             setShowDocModal(true);
           }}
+          onAnalysisStart={(message) => {
+            setIsAnalyzing(true);
+            setLoadingMessage(message);
+          }}
+          onAnalysisEnd={() => setIsAnalyzing(false)}
         />
         
         <div className="flex-1 flex flex-col">
@@ -91,6 +99,11 @@ export default function Home() {
           onClose={() => setShowDocModal(false)}
         />
       )}
+
+      <LoadingScreen 
+        isVisible={isAnalyzing}
+        message={loadingMessage}
+      />
     </div>
   );
 }

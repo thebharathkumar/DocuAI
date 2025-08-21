@@ -13,13 +13,17 @@ interface SidebarProps {
   onRepositorySelect: (repo: any) => void;
   onFileSelect: (filePath: string) => void;
   onGenerateDoc: (type: string, doc: any) => void;
+  onAnalysisStart?: (message: string) => void;
+  onAnalysisEnd?: () => void;
 }
 
 export default function Sidebar({ 
   selectedRepository, 
   onRepositorySelect, 
   onFileSelect,
-  onGenerateDoc 
+  onGenerateDoc,
+  onAnalysisStart,
+  onAnalysisEnd
 }: SidebarProps) {
   const [repositoryUrl, setRepositoryUrl] = useState("");
   const { toast } = useToast();
@@ -31,12 +35,14 @@ export default function Sidebar({
     },
     onSuccess: (data) => {
       onRepositorySelect(data.repository);
+      onAnalysisEnd?.();
       toast({
         title: "Analysis Started",
         description: "Repository analysis has begun. Check the progress below.",
       });
     },
     onError: (error) => {
+      onAnalysisEnd?.();
       toast({
         title: "Analysis Failed",
         description: error.message,
@@ -81,6 +87,7 @@ export default function Sidebar({
       });
       return;
     }
+    onAnalysisStart?.("Analyzing repository...");
     analyzeRepoMutation.mutate(repositoryUrl);
   };
 
