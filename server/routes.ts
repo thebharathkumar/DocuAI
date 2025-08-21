@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { insertRepositorySchema, insertDocumentationSchema } from "@shared/schema";
 import { GitHubService } from "./services/github";
 import { ASTParser } from "./services/parser";
-import { generateReadme, generateApiDocumentation, generateCodeComments, analyzeCodeQuality } from "./services/openai";
+import { generateReadme, generateApiDocumentation, generateCodeComments, analyzeCodeQuality } from "./services/gemini";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const githubService = new GitHubService();
@@ -108,11 +108,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (type === "readme") {
         const mainFiles = githubService.getMainFiles(repository.fileStructure as any);
         content = await generateReadme({
-          repositoryName: repository.name,
+          name: repository.name,
           description: repository.description || "",
-          language: repository.language || "JavaScript",
-          fileStructure: repository.fileStructure,
-          mainFiles
+          files: mainFiles,
+          structure: repository.fileStructure
         });
       } else if (type === "api") {
         const mainFiles = githubService.getMainFiles(repository.fileStructure as any);
@@ -127,10 +126,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           allClasses.push(...parsed.classes);
         }
         
-        content = await generateApiDocumentation({
-          functions: allFunctions,
-          classes: allClasses
-        });
+        content = await generateApiDocumentation(allFunctions.map(f => ({
+          name: f.name,
+          params: f.params || [],
+          returnType: f.returnType,
+          description: f.description
+        })));
       } else if (type === "comments") {
         const mainFiles = githubService.getMainFiles(repository.fileStructure as any);
         const fileContents = await githubService.getMultipleFileContents(repository.url, mainFiles.slice(0, 3));
@@ -139,7 +140,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         for (const [fileName, fileContent] of Object.entries(fileContents)) {
           const parsed = astParser.parseFile(fileName, fileContent);
-          const suggestions = await generateCodeComments(fileName, fileContent, parsed.functions);
+          const suggestions = await generateCodeComments(fileContent, fileName);
           allSuggestions.push(...suggestions.map(s => ({ ...s, fileName })));
         }
         
@@ -204,7 +205,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Analyze code quality
-      const qualityMetrics = await analyzeCodeQuality(fileContents);
+      const qualityMetrics = await analyzeCodeQuality(Object.entries(fileContents).map(([name, content]) => ({
+        name,
+        content
+      })));
       
       await storage.updateAnalysisJob(repositoryId, {
         progress: "90",

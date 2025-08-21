@@ -14,6 +14,7 @@
     "@babel/parser": "^7.28.3",
     "@babel/traverse": "^7.28.3",
     "@babel/types": "^7.28.2",
+    "@google/genai": "^1.15.0",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@neondatabase/serverless": "^0.10.4",
