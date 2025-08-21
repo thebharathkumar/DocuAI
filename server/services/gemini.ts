@@ -31,8 +31,9 @@ Create a professional README that includes:
 4. Features list
 5. Contributing guidelines
 6. License information
+7. Author credit: "Made by Bharath"
 
-Make it engaging and informative for developers.`;
+Make it engaging and informative for developers. Include "Made by Bharath" prominently in the README.`;
 
     const readmeResponse = await ai.models.generateContent({
       model: "gemini-2.5-flash",
