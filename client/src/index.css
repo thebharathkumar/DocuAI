@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(0 0% 14.1%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(0 0% 14.1%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(0 0% 14.1%);
+  --primary: hsl(212 100% 43.5%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(0 0% 14.1%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(210 40% 96%);
+  --muted-foreground: hsl(0 0% 39.6%);
+  --accent: hsl(210 40% 96%);
+  --accent-foreground: hsl(0 0% 14.1%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(214 32% 91%);
+  --input: hsl(214 32% 91%);
+  --ring: hsl(212 100% 43.5%);
+  --chart-1: hsl(212 100% 43.5%);
+  --chart-2: hsl(142 76% 36%);
+  --chart-3: hsl(51 100% 50%);
+  --chart-4: hsl(142 69% 58%);
+  --chart-5: hsl(340 75% 55%);
+  --radius: 0.5rem;
+  
+  /* GitHub-inspired colors */
+  --github-dark: hsl(210 19% 14%);
+  --github-blue: hsl(212 100% 43.5%);
+  --code-bg: hsl(210 40% 96.5%);
+  --success-green: hsl(137 72% 29%);
+  --text-medium: hsl(210 13% 40%);
+  --border-light: hsl(214 32% 91%);
+  
+  /* Fonts */
+  --font-inter: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
+}
+
+.dark {
+  --background: hsl(0 0% 7.8%);
+  --foreground: hsl(0 0% 85.1%);
+  --card: hsl(0 0% 7.8%);
+  --card-foreground: hsl(0 0% 85.1%);
+  --popover: hsl(0 0% 7.8%);
+  --popover-foreground: hsl(0 0% 85.1%);
+  --primary: hsl(212 100% 43.5%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(0 0% 85.1%);
+  --secondary-foreground: hsl(0 0% 7.8%);
+  --muted: hsl(0 0% 14.9%);
+  --muted-foreground: hsl(0 0% 63.9%);
+  --accent: hsl(0 0% 14.9%);
+  --accent-foreground: hsl(0 0% 85.1%);
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(0 0% 14.9%);
+  --input: hsl(0 0% 14.9%);
+  --ring: hsl(212 100% 43.5%);
+  --chart-1: hsl(212 100% 43.5%);
+  --chart-2: hsl(142 76% 36%);
+  --chart-3: hsl(51 100% 50%);
+  --chart-4: hsl(142 69% 58%);
+  --chart-5: hsl(340 75% 55%);
+  
+  --github-dark: hsl(210 19% 14%);
+  --github-blue: hsl(212 100% 50%);
+  --code-bg: hsl(0 0% 14.9%);
+  --success-green: hsl(137 72% 45%);
+  --text-medium: hsl(210 13% 60%);
+  --border-light: hsl(0 0% 14.9%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-inter);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+@layer utilities {
+  .github-dark {
+    color: var(--github-dark);
+  }
+  
+  .bg-github-dark {
+    background-color: var(--github-dark);
+  }
+  
+  .github-blue {
+    color: var(--github-blue);
+  }
+  
+  .bg-github-blue {
+    background-color: var(--github-blue);
+  }
+  
+  .bg-code-bg {
+    background-color: var(--code-bg);
+  }
+  
+  .success-green {
+    color: var(--success-green);
+  }
+  
+  .bg-success-green {
+    background-color: var(--success-green);
+  }
+  
+  .text-medium {
+    color: var(--text-medium);
+  }
+  
+  .border-light {
+    border-color: var(--border-light);
+  }
+}
