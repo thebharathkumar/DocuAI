@@ -1,5 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import * as fs from "fs";
+import * as path from "path";
 import { storage } from "./storage";
 import { insertRepositorySchema, insertDocumentationSchema } from "@shared/schema";
 import { GitHubService } from "./services/github";
@@ -107,12 +109,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (type === "readme") {
         const mainFiles = githubService.getMainFiles(repository.fileStructure as any);
-        content = await generateReadme({
+        const readmeResult = await generateReadme({
           name: repository.name,
           description: repository.description || "",
           files: mainFiles,
           structure: repository.fileStructure
         });
+        content = readmeResult.content;
+        if (readmeResult.imagePath) {
+          metadata = { imagePath: readmeResult.imagePath };
+        }
       } else if (type === "api") {
         const mainFiles = githubService.getMainFiles(repository.fileStructure as any);
         const fileContents = await githubService.getMultipleFileContents(repository.url, mainFiles.slice(0, 5));
@@ -171,6 +177,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(analysisJob);
+    } catch (error) {
+      res.status(500).json({ message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Serve generated images
+  app.get("/api/images/:filename", async (req, res) => {
+    try {
+      const { filename } = req.params;
+      const imagePath = path.join(process.cwd(), 'generated_images', filename);
+      
+      if (!fs.existsSync(imagePath)) {
+        return res.status(404).json({ message: "Image not found" });
+      }
+      
+      res.sendFile(imagePath);
     } catch (error) {
       res.status(500).json({ message: error instanceof Error ? error.message : "Unknown error" });
     }

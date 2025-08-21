@@ -1,4 +1,6 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Modality } from "@google/genai";
+import * as fs from "fs";
+import * as path from "path";
 
 // Initialize Gemini AI with API key
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
@@ -10,9 +12,10 @@ export async function generateReadme(
     files: string[];
     structure: any;
   }
-): Promise<string> {
+): Promise<{ content: string; imagePath?: string }> {
   try {
-    const prompt = `Generate a comprehensive README.md file for a GitHub repository with the following information:
+    // First generate the README content
+    const readmePrompt = `Generate a comprehensive README.md file for a GitHub repository with the following information:
 
 Repository: ${repoInfo.name}
 Description: ${repoInfo.description || 'No description provided'}
@@ -31,12 +34,68 @@ Create a professional README that includes:
 
 Make it engaging and informative for developers.`;
 
-    const response = await ai.models.generateContent({
+    const readmeResponse = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: prompt,
+      contents: readmePrompt,
     });
 
-    return response.text || "Failed to generate README";
+    const readmeContent = readmeResponse.text || "Failed to generate README";
+
+    // Generate a relevant image for the repository
+    const imagePrompt = `Create a professional, modern banner image for a software project called "${repoInfo.name}". 
+${repoInfo.description ? `The project is about: ${repoInfo.description}` : ''}
+Style: Clean, modern tech aesthetic with subtle gradients, geometric shapes, and professional typography. 
+Colors: Use a modern tech color palette with blues, purples, or teals. 
+Include the project name prominently. Make it suitable for a GitHub repository header.`;
+
+    let imagePath: string | undefined;
+    
+    try {
+      // Ensure images directory exists
+      const imagesDir = path.join(process.cwd(), 'generated_images');
+      if (!fs.existsSync(imagesDir)) {
+        fs.mkdirSync(imagesDir, { recursive: true });
+      }
+
+      imagePath = path.join(imagesDir, `${repoInfo.name.replace(/[^a-zA-Z0-9]/g, '_')}_banner.jpg`);
+
+      const imageResponse = await ai.models.generateContent({
+        model: "gemini-2.0-flash-preview-image-generation",
+        contents: [{ role: "user", parts: [{ text: imagePrompt }] }],
+        config: {
+          responseModalities: [Modality.TEXT, Modality.IMAGE],
+        },
+      });
+
+      const candidates = imageResponse.candidates;
+      if (candidates && candidates.length > 0) {
+        const content = candidates[0].content;
+        if (content && content.parts) {
+          for (const part of content.parts) {
+            if (part.inlineData && part.inlineData.data) {
+              const imageData = Buffer.from(part.inlineData.data, "base64");
+              fs.writeFileSync(imagePath, imageData);
+              console.log(`Generated banner image: ${imagePath}`);
+              break;
+            }
+          }
+        }
+      }
+    } catch (imageError) {
+      console.warn("Failed to generate image:", imageError);
+      imagePath = undefined;
+    }
+
+    // Add image to README if generated successfully
+    let finalReadmeContent = readmeContent;
+    if (imagePath && fs.existsSync(imagePath)) {
+      const filename = path.basename(imagePath);
+      const imageUrl = `/api/images/${filename}`;
+      const imageMarkdown = `![${repoInfo.name} Banner](${imageUrl})\n\n`;
+      finalReadmeContent = imageMarkdown + readmeContent;
+    }
+
+    return { content: finalReadmeContent, imagePath };
   } catch (error) {
     throw new Error(`Failed to generate README: ${error}`);
   }
