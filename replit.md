@@ -2,6 +2,11 @@
 
 DocuMind AI is a code documentation generator that analyzes GitHub repositories and automatically creates comprehensive documentation using AI. The application features a full-stack architecture with React frontend and Express.js backend, designed to parse code repositories, extract structural information, and generate README files, API documentation, and inline code comments through OpenAI integration.
 
+<img width="1657" height="976" alt="Screenshot 2025-08-22 at 1 21 43 AM" src="https://github.com/user-attachments/assets/515b0a85-b34b-43ad-a410-296f11ab5cec" />
+
+<img width="1658" height="979" alt="Screenshot 2025-08-22 at 1 22 24 AM" src="https://github.com/user-attachments/assets/8c3f7845-2d0b-420f-973d-e5641b653e61" />
+
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
